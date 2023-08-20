@@ -296,7 +296,7 @@ inline memento<BidiIter> save_sub_matches(state_type<BidiIter> &state)
         state.extras_->sub_match_stack_.push_sequence(state.mark_count_, no_fill)
       , state.context_.results_ptr_->nested_results().size()
     };
-    std::copy(state.sub_matches_, state.sub_matches_ + state.mark_count_, mem.old_sub_matches_);
+    std::copy(state.sub_matches_, state.sub_matches_ + state.mark_count_, mem_sub_matches_);
     return mem;
 }
 
@@ -310,8 +310,8 @@ inline void restore_sub_matches(memento<BidiIter> const &mem, state_type<BidiIte
     nested_results<BidiIter> &nested = access::get_nested_results(*state.context_.results_ptr_);
     std::size_t count = state.context_.results_ptr_->nested_results().size() - mem.nested_results_count_;
     state.extras_->results_cache_.reclaim_last_n(nested, count);
-    std::copy(mem.old_sub_matches_, mem.old_sub_matches_ + state.mark_count_, state.sub_matches_);
-    state.extras_->sub_match_stack_.unwind_to(mem.old_sub_matches_);
+    std::copy(mem_sub_matches_, mem_sub_matches_ + state.mark_count_, state.sub_matches_);
+    state.extras_->sub_match_stack_.unwind_to(mem_sub_matches_);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -323,7 +323,7 @@ inline void reclaim_sub_matches(memento<BidiIter> const &mem, state_type<BidiIte
     std::size_t count = state.context_.results_ptr_->nested_results().size() - mem.nested_results_count_;
     if(count == 0)
     {
-        state.extras_->sub_match_stack_.unwind_to(mem.old_sub_matches_);
+        state.extras_->sub_match_stack_.unwind_to(mem_sub_matches_);
     }
     // else we have we must orphan this block of backrefs because we are using the stack
     // space above it.
